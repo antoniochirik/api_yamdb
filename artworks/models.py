@@ -26,4 +26,3 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         autho_now_add=True
-    )
