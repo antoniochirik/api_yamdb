@@ -10,6 +10,11 @@ router.register(
     ReviewViewSet,
     basename='review'
 )
+router.register(
+    r'^titles',
+    TitleViewSet,
+    basename='title'
+)
 
 urlpatterns = [
     path('v1/api-token-auth/', views.obtain_auth_token),
