@@ -1,15 +1,29 @@
-from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, permissions, mixins, filters
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from artworks.models import Title, Genre
+from artworks.models import Category, Title, Genre, Review
 from users.models import User
 from django.core.mail import send_mail
 from .tokens import account_activation_token
 from .serializers import (ReviewSerializer, UserSerializer, UsernameSerializer,
-                          TitleSerializer, GenreSerializer)
+                          TitleSerializer, GenreSerializer, CategorySerializer)
 from .permissions import IsAdminOrReadOnly
+from django.shortcuts import get_object_or_404
+
+
+class CategoryViewSet(mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
