@@ -1,12 +1,51 @@
+
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters
+from rest_framework import mixins, viewsets, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from artworks.models import Title, Review
+from artworks.models import Category, Title, Genre, Review
 
-from .serializers import ReviewSerializer, CommentSerializer, TitleSerializer
+from .serializers import (CategorySerializer, ReviewSerializer,
+                          CommentSerializer, TitleSerializer, GenreSerializer)
 from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
+
+
+class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
+                               mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ListCreateDestroyViewSet):
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+    lookup_field = 'slug'
+
+
+class GenreViewSet(ListCreateDestroyViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+    lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -51,12 +90,3 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review_id=self.kwargs.get('review_id',)
         )
-
-
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    pagination_class = PageNumberPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', ]
