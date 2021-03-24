@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from artworks.models import Title, Review
 
-from .serializers import ReviewSerializer, CommentSerializer
-from .permissions import IsAuthorOrReadOnly
+from .serializers import ReviewSerializer, CommentSerializer, TitleSerializer
+from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -50,3 +51,12 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review_id=self.kwargs.get('review_id',)
         )
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]

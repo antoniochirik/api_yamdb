@@ -42,6 +42,7 @@ class Review(models.Model):
         ]
     )
     pub_date = models.DateTimeField(
+<<<<<<< HEAD
         auto_now_add=True
     )
 
@@ -62,3 +63,19 @@ class Comment(models.Model):
         "Дата добавления",
         auto_now_add=True
     )
+=======
+        autho_now_add=True
+    )
+
+
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.IntegerField(null=True, blank=True)
+    rating = models.IntegerField(blank=True, null=True)
+    description = models.TextField(max_length=200)
+    genre = models.ManyToManyField(Genre)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL,
+                               )
+>>>>>>> master
