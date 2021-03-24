@@ -2,7 +2,10 @@ from django.urls import include, path
 from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
+from .views import GenreViewSet
+
 router = DefaultRouter()
+router.register('genres', GenreViewSet)
 
 router.register('posts', PostViewSet, basename='posts')
 router.register(

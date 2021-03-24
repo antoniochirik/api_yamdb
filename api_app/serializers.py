@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from posts.models import Review, Title
+from posts.models import Review, Title, Genre
 
 
-class ReviewSerializer(serializer.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
@@ -16,3 +16,11 @@ class ReviewSerializer(serializer.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        lookup_field = 'slug'
+        model = Genre
