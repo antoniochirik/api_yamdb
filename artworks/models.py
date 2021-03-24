@@ -25,4 +25,23 @@ class Review(models.Model):
         ]
     )
     pub_date = models.DateTimeField(
-        autho_now_add=True
+        auto_now_add=True
+    )
+
+
+class Comment(models.Model):
+    review = models.ForeignKey(
+        Review,
+        on_delete = models.CASCADE,
+        related_name="comments"
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = "comments"
+    )
+    text = models.TextField()
+    pub_date = models.DateTimeField(
+        "Дата добавления",
+        auto_now_add = True
+    )

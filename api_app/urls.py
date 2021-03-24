@@ -4,14 +4,18 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
-router.register('posts', PostViewSet, basename='posts')
+router.register(
+    r'^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
+    CommentViewSet,
+    basename='comment'
+)
 router.register(
     r'^titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='review'
 )
 router.register(
-    r'^titles',
+    'titles',
     TitleViewSet,
     basename='title'
 )
