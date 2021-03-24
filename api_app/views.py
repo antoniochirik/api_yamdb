@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-
+from rest_framework import viewsets, filters
+from rest_framework.pagination import PageNumberPagination
 from artworks.models import Title
 
-from .serializers import ReviewSerializer
-
+from .serializers import ReviewSerializer, TitleSerializer
+from .permissions import IsAdminOrReadOnly
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -22,3 +22,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             title_id=self.kwargs.get('title_id',)
         )
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
