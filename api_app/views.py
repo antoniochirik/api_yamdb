@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets, mixins, filters
 from rest_framework.pagination import PageNumberPagination
 
@@ -6,6 +7,7 @@ from artworks.models import Title, Genre
 
 from .serializers import ReviewSerializer, GenreSerializer
 from .permissions import IsAdminOrReadOnly
+
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -26,6 +28,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
 
+
 class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                    mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Genre.objects.all()
@@ -35,3 +38,13 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+
