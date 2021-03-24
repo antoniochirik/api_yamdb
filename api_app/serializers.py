@@ -3,7 +3,8 @@ from rest_framework import serializers
 from posts.models import Review, Title, Category, Genre
 
 
-class ReviewSerializer(serializer.ModelSerializer):
+
+class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
@@ -18,6 +19,15 @@ class ReviewSerializer(serializer.ModelSerializer):
         fields = '__all__'
 
 
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        lookup_field = 'slug'
+        model = Genre
+
+        
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(slug_field='slug',
                                         queryset=Genre.objects.all())
@@ -26,3 +36,4 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+
