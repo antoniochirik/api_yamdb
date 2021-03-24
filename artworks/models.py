@@ -3,7 +3,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
+# Create your models here.
+
 User = get_user_model()
+
+class Category(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+
 
 class Review(models.Model):
     title = models.ForeignKey(
