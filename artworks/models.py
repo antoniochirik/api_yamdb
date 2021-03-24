@@ -4,9 +4,27 @@ from django.db import models
 from users.models import User
 
 
+class Title(models.Model):
+    name = models.CharField(
+        verbose_name='Заголовок',
+        max_length=200,
+        help_text='Напишите название произведения'
+    )
+    year = models.IntegerField(
+        verbose_name='Год создания',
+        blank=True, 
+        help_text='Укажите год создания'
+    )
+    description = models.TextField(
+        verbose_name='Описание произведения',
+        blank=True, null=True,
+        help_text='Добавьте сюда описание произведения'
+    )
+
+
 class Review(models.Model):
     title = models.ForeignKey(
-        'Title',
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews'
     )

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from artworks.models import Title, Review
 
 from .serializers import ReviewSerializer, CommentSerializer
-from .permisiions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
