@@ -35,6 +35,11 @@ class Review(models.Model):
 
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+
+
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
@@ -44,3 +49,4 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
                                )
+

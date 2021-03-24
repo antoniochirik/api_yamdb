@@ -1,14 +1,14 @@
 from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets, permissions, mixins, filters
 from rest_framework.response import Response
-from .permissions import IsAuthorOrReadOnly
 from rest_framework.pagination import PageNumberPagination
-from artworks.models import Title
+from artworks.models import Title, Genre
 from users.models import User
 from django.core.mail import send_mail
 from .tokens import account_activation_token
 from .serializers import (ReviewSerializer, UserSerializer, UsernameSerializer,
-                          TitleSerializer)
+                          TitleSerializer, GenreSerializer)
 from .permissions import IsAdminOrReadOnly
 
 
@@ -47,25 +47,36 @@ class UsernameViewSet(mixins.RetrieveModelMixin,
     queryset = User.objects.all()
     serializer_class = UsernameSerializer
 
-    
+
 class AuthViewSet(viewsets.GenericViewSet):
-    
+
     def email_confirmation(self):
-        if self.request.method == 'POST':       
+        if self.request.method == 'POST':
             email = self.request.POST.get('email')
-            if email == None:       
-                return  Response("Мыло не получено")
-            user = get_object_or_404(User, email=email) 
+            if email is None:
+                return Response("Мыло не получено")
+            user = get_object_or_404(User, email=email)
             confirmation_code = account_activation_token.make_token(user)
             send_mail(
                 subject='email_confirmation',
                 message=confirmation_code,
                 from_email='yamdb@ya.ru',
-                recipient_list = [email,]
-            )  
-            return  Response('Confirmation code was sent to your email')
+                recipient_list=[email]
+            )
+            return Response('Confirmation code was sent to your email')
 
-            
+
+class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+    lookup_field = 'slug'
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer

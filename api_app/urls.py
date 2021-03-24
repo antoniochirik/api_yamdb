@@ -4,7 +4,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (ReviewViewSet, UsersViewsSet, UsernameViewSet,
                     AuthViewSet, TitleViewSet)
 
+from .views import GenreViewSet
+
 router = DefaultRouter()
+router.register('genres', GenreViewSet)
 
 
 router.register('titles', TitleViewSet)
