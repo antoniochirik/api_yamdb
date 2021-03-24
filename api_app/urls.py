@@ -1,22 +1,35 @@
 from django.urls import include, path
 from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
+from .views import (ReviewViewSet, UsersViewsSet, UsernameViewSet,
+                    AuthViewSet)
 
 router = DefaultRouter()
 
-router.register('posts', PostViewSet, basename='posts')
 router.register(
     r'^titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='review'
 )
 router.register(
-    r'^titles',
-    TitleViewSet,
-    basename='title'
+    'users', 
+    UsersViewsSet,
+    basename='users'
 )
 
+# router.register(
+#     r'^titles',
+#     TitleViewSet,
+#     basename='title'
+# )
+
 urlpatterns = [
-    path('v1/api-token-auth/', views.obtain_auth_token),
+    path('v1/auth/email/', AuthViewSet.as_view({'post': 'email_confirmation'})),
     path('v1/', include(router.urls)),
+    path('v1/users/', UsersViewsSet.as_view({'get': 'list', 'post': 'create'})),
+    path('v1/users/<str:username>/', UsernameViewSet.as_view({
+        'get': 'retrieve',
+        'patch': 'partial_update',
+        'delete': 'destroy'
+    }))
 ]

@@ -5,17 +5,22 @@ from django.db import models
 
 User = get_user_model()
 
+
+class Title(models.Model):
+    pass
+
+
 class Review(models.Model):
     title = models.ForeignKey(
         Title,
-        on_delete = models.CASCADE,
-        related_name = 'reviews'
+        on_delete=models.CASCADE,
+        related_name='reviews'
     )
     text = models.TextField()
     author = models.ForeignKey(
         User,
-        on_delete = models.CASCADE,
-        related_name = 'reviews'
+        on_delete=models.CASCADE,
+        related_name='reviews'
     )
     score = models.IntegerField(
         default=5,
@@ -25,5 +30,5 @@ class Review(models.Model):
         ]
     )
     pub_date = models.DateTimeField(
-        autho_now_add=True
+        auto_now_add=True
     )
