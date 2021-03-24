@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from rest_framework.authtoken import views
 
-from .views import TitleViewSet, CategoryViewSet, GenreViewSet
+from .views import TitleViewSet, CategoryViewSet, GenreViewSet, ReviewViewSet
 
 
 router = DefaultRouter()
