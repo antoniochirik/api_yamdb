@@ -1,20 +1,19 @@
-from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
-from .views import TitleViewSet
-
+from .views import (CommentViewSet, ReviewViewSet,
+                    TitleViewSet, CategoryViewSet, GenreViewSet)
 
 from rest_framework.authtoken import views
 
 
-from .views import TitleViewSet, CategoryViewSet, GenreViewSet, ReviewViewSet
-
+router = DefaultRouter()
 
 router = DefaultRouter()
+router.register('categories', CategoryViewSet)
 router.register('genres', GenreViewSet)
 router.register('titles', TitleViewSet)
-router.register('categories', CategoryViewSet)
+
+
 
 router.register(
     r'^titles/(?P<title_id>\d+)/reviews',
@@ -22,9 +21,9 @@ router.register(
     basename='review'
 )
 router.register(
-    r'^titles',
-    TitleViewSet,
-    basename='title'
+    r'^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
+    CommentViewSet,
+    basename='comment'
 )
 
 urlpatterns = [
