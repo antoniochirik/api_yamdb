@@ -32,7 +32,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -55,8 +62,8 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
 
-class AuthSerializer(serializers.ModelSerializer):
+class ConfirmedCodeSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = 'confirmed_code'
         model = CustomUser

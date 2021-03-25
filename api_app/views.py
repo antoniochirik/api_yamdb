@@ -1,13 +1,15 @@
 from rest_framework import viewsets, permissions, mixins, filters
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.tokens import RefreshToken
 from artworks.models import Category, Title, Genre
 from users.models import CustomUser
 from django.core.mail import send_mail
 from .tokens import account_activation_token
 from .serializers import (ReviewSerializer, CustomUserSerializer,
                           TitleSerializer, GenreSerializer,
-                          CategorySerializer)
+                          CategorySerializer, ConfirmedCodeSerializer)
 from .permissions import IsAdminOrReadOnly
 from django.shortcuts import get_object_or_404
 
@@ -48,16 +50,16 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [
-        permissions.IsAuthenticated
+        permissions.IsAdminUser
     ]
 
 
-class AuthViewSet(viewsets.GenericViewSet):
+class ConfirmationCode(APIView):
     permission_classes = [
         permissions.AllowAny
     ]
 
-    def create(self, request):
+    def post(self, request):
         email = self.request.POST.get('email')
         if email is None:
             return Response('E-mail is None')
@@ -71,6 +73,25 @@ class AuthViewSet(viewsets.GenericViewSet):
             recipient_list=[email]
         )
         return Response('Confirmation code was sent to your email')
+
+
+class Auth(APIView):
+    permission_classes = [
+        permissions.AllowAny
+    ]
+
+    def post(self, request):
+        email = self.request.POST.get('email')
+        confirmed_code = self.request.POST.get('confirmed_code')
+        user = get_object_or_404(CustomUser, email=email)
+        code_check = account_activation_token.check_token(user, confirmed_code)
+        if code_check:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            })
+        return Response('Check confirmed code is BAD')
 
 
 class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
