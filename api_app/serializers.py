@@ -2,18 +2,15 @@ from rest_framework import serializers
 
 
 from artworks.models import Review, Title, Category, Genre
-from users.models import User
+from users.models import CustomUser
 
 
 class CategorySerializer(serializers.ModelSerializer):
-  
+
     class Meta:
         fields = '__all__'
         lookup_field = 'slug'
-        
         model = Category
-
-
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -31,17 +28,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        fields = '__all__'
-
-
-class UsernameSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
 
 
@@ -63,3 +53,10 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+
+
+class AuthSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = CustomUser

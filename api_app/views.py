@@ -1,13 +1,13 @@
-
 from rest_framework import viewsets, permissions, mixins, filters
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from artworks.models import Category, Title, Genre, Review
-from users.models import User
+from artworks.models import Category, Title, Genre
+from users.models import CustomUser
 from django.core.mail import send_mail
 from .tokens import account_activation_token
-from .serializers import (ReviewSerializer, UserSerializer, UsernameSerializer,
-                          TitleSerializer, GenreSerializer, CategorySerializer)
+from .serializers import (ReviewSerializer, CustomUserSerializer,
+                          TitleSerializer, GenreSerializer,
+                          CategorySerializer)
 from .permissions import IsAdminOrReadOnly
 from django.shortcuts import get_object_or_404
 
@@ -44,40 +44,33 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
 
-class UsersViewsSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UsersViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
     permission_classes = [
         permissions.IsAuthenticated
     ]
 
 
-class UsernameViewSet(mixins.RetrieveModelMixin,
-                      mixins.UpdateModelMixin,
-                      mixins.DestroyModelMixin,
-                      viewsets.GenericViewSet):
-    queryset = User.objects.all()
-    serializer_class = UsernameSerializer
-
-
 class AuthViewSet(viewsets.GenericViewSet):
+    permission_classes = [
+        permissions.AllowAny
+    ]
 
-    def email_confirmation(self):
-        if self.request.method == 'POST':
-            email = self.request.POST.get('email')
-            if email is None:
-                return Response("Мыло не получено")
-            user = get_object_or_404(User, email=email)
-            confirmation_code = account_activation_token.make_token(user)
-            send_mail(
-                subject='email_confirmation',
-                message=confirmation_code,
-                from_email='yamdb@ya.ru',
-                recipient_list=[email]
-            )
-            return Response('Confirmation code was sent to your email')
+    def create(self, request):
+        email = self.request.POST.get('email')
+        if email is None:
+            return Response('E-mail is None')
+        user = get_object_or_404(CustomUser, email=email)
+        confirmation_code = account_activation_token.make_token(user)
+        send_mail(
+            subject='email_confirmation',
+            message='Отправьте POST с e-mail и code на '
+                    f'"auth/token" {confirmation_code}',
+            from_email='yamdb@ya.ru',
+            recipient_list=[email]
+        )
+        return Response('Confirmation code was sent to your email')
 
 
 class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,

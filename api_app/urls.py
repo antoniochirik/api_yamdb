@@ -1,8 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (ReviewViewSet, UsersViewsSet, UsernameViewSet,
-                    AuthViewSet, TitleViewSet, CategoryViewSet,
-                    GenreViewSet)
+from .views import (ReviewViewSet, UsersViewSet, AuthViewSet,
+                    TitleViewSet, CategoryViewSet, GenreViewSet)
 
 
 router = DefaultRouter()
@@ -14,11 +13,7 @@ router.register(
     ReviewViewSet,
     basename='review'
 )
-router.register(
-    'users', 
-    UsersViewsSet,
-    basename='users'
-)
+
 
 # router.register(
 #     r'^titles',
@@ -27,10 +22,13 @@ router.register(
 # )
 
 urlpatterns = [
-    path('v1/auth/email/', AuthViewSet.as_view({'post': 'email_confirmation'})),
     path('v1/', include(router.urls)),
-    path('v1/users/', UsersViewsSet.as_view({'get': 'list', 'post': 'create'})),
-    path('v1/users/<str:username>/', UsernameViewSet.as_view({
+    path('v1/auth/email/', AuthViewSet.as_view({'post': 'create'})),
+    path('v1/users/', UsersViewSet.as_view({
+        'get': 'list',
+        'post': 'create'
+    })),
+    path('v1/users/<str:username>/', UsersViewSet.as_view({
         'get': 'retrieve',
         'patch': 'partial_update',
         'delete': 'destroy'
