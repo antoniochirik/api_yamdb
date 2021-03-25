@@ -1,10 +1,10 @@
 from rest_framework import serializers
-
+from django.contrib.auth import get_user_model
 from artworks.models import Comment, Review, Title, Category, Genre
+User = get_user_model()
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         lookup_field = 'slug'
         exclude = ['id']
@@ -17,17 +17,15 @@ class CategoryField(serializers.SlugRelatedField):
             return self.get_queryset().get(**{self.slug_field: data})
         except (TypeError, ValueError):
             self.fail('invalid')
-
+    
     def to_representation(self, value):
         return CategorySerializer(value).data
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         lookup_field = 'slug'
         exclude = ['id']
-
         model = Genre
 
 
@@ -37,7 +35,7 @@ class GenreField(serializers.SlugRelatedField):
             return self.get_queryset().get(**{self.slug_field: data})
         except (TypeError, ValueError):
             self.fail('invalid')
-
+    
     def to_representation(self, value):
         return GenreSerializer(value).data
 
@@ -90,3 +88,42 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+
+
+class UsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+
+
+class UserAPIViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )

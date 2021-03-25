@@ -1,25 +1,27 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 
+<<<<<<< HEAD
 
 User = get_user_model()
+=======
+from .managers import CustomUserManager
+>>>>>>> master
 
 
-class Profile(models.Model):
+class CustomUser(AbstractUser):
 
     class Role(models.TextChoices):
-        USER = 1, 'user'
-        MODERATOR = 2, 'moderator'
-        ADMIN = 3, 'admin'
+        USER = 'user', 'User'
+        MODERATOR = 'moderator', 'Moderator'
+        ADMIN = 'admin', 'Administrator'
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email = models.EmailField('e-mail', unique=True)
     bio = models.TextField(max_length=500, blank=True)
-    email = models.EmailField()
-    role = models.PositiveSmallIntegerField(choices=Role.choices,
-                                            default=Role.USER)
+    role = models.CharField(max_length=10, choices=Role.choices,
+                            default=Role.USER)
 
+<<<<<<< HEAD
 
 @receiver(post_save, sender=User)
 def create_custom_user(sender, instance, created, **kwargs):
@@ -64,3 +66,6 @@ def save_custom_user(sender, instance, **kwargs):
 # class UserConfirmation(models.Model):
 #     email = models.EmailField(max_length=254, blank=False, null=False, unique=True)
 #     confirmation_code = models.CharField(max_length=1000, blank=True, null=True)
+=======
+    objects = CustomUserManager()
+>>>>>>> master
