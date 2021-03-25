@@ -15,8 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from artworks.models import Category, Title, Genre, Review
 
-from .serializers import (CategorySerializer, ReviewSerializer,
-                          CommentSerializer, TitleSerializer, GenreSerializer)
+
 from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
 from .filters import TitleFilter
 
