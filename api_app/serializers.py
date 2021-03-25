@@ -7,8 +7,8 @@ from artworks.models import Review, Title, Category, Genre
 class CategorySerializer(serializers.ModelSerializer):
   
     class Meta:
-        fields = '__all__'
         lookup_field = 'slug'
+        exclude = ['id']
         
         model = Category
 
@@ -34,12 +34,34 @@ class ReviewSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
         lookup_field = 'slug'
+        exclude = ['id']
 
         model = Genre
 
         
+class GenreField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, value):
+        return GenreSerializer(value).data
+
+
+class CategoryField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, value):
+        return CategorySerializer(value).data
+
+
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(slug_field='slug',
                                         queryset=Genre.objects.all())
