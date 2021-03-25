@@ -1,8 +1,9 @@
 from rest_framework import serializers
-
+from django.contrib.auth import get_user_model
 
 from artworks.models import Review, Title, Category, Genre
-from users.models import CustomUser
+
+User = get_user_model()
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -31,7 +32,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'first_name',
             'last_name',
@@ -62,8 +63,29 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
 
-class ConfirmedCodeSerializer(serializers.ModelSerializer):
+class UsernameSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = 'confirmed_code'
-        model = CustomUser
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+
+
+class UserAPIViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )

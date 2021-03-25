@@ -1,8 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (ReviewViewSet, UsersViewSet, ConfirmationCode,
+from .views import (ReviewViewSet, UsersViewSet, ConfirmationCodeAPIView,
                     TitleViewSet, CategoryViewSet, GenreViewSet,
-                    Auth)
+                    AuthAPIView, UserAPIView)
 
 
 router = DefaultRouter()
@@ -15,19 +15,10 @@ router.register(
     basename='review'
 )
 
-
-# router.register(
-#     r'^titles',
-#     TitleViewSet,
-#     basename='title'
-# )
-
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/email/', ConfirmationCode.as_view(),
-         name='confirmed_code'),
-    path('v1/auth/token/', Auth.as_view(),
-         name='token'),
+    path('v1/auth/email/', ConfirmationCodeAPIView.as_view()),
+    path('v1/auth/token/', AuthAPIView.as_view()),
     path('v1/users/', UsersViewSet.as_view({
         'get': 'list',
         'post': 'create'
@@ -36,5 +27,6 @@ urlpatterns = [
         'get': 'retrieve',
         'patch': 'partial_update',
         'delete': 'destroy'
-    }))
+    })),
+    path('v1/users/me/', UserAPIView.as_view())
 ]
