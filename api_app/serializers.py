@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from artworks.models import Comment, Review, Title, Category, Genre
+
 User = get_user_model()
 
 
@@ -17,7 +18,7 @@ class CategoryField(serializers.SlugRelatedField):
             return self.get_queryset().get(**{self.slug_field: data})
         except (TypeError, ValueError):
             self.fail('invalid')
-    
+
     def to_representation(self, value):
         return CategorySerializer(value).data
 
@@ -35,7 +36,7 @@ class GenreField(serializers.SlugRelatedField):
             return self.get_queryset().get(**{self.slug_field: data})
         except (TypeError, ValueError):
             self.fail('invalid')
-    
+
     def to_representation(self, value):
         return GenreSerializer(value).data
 
@@ -46,7 +47,7 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Genre.objects.all()
     )
-    category = serializers.SlugRelatedField(
+    category = CategoryField(
         slug_field='slug',
         queryset=Category.objects.all()
     )

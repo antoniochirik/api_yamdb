@@ -1,6 +1,11 @@
+
+from django.shortcuts import get_object_or_404
+
+
 from rest_framework import viewsets, permissions, mixins, filters, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
@@ -19,7 +24,7 @@ from artworks.models import Category, Title, Genre, Review
 from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
 from .filters import TitleFilter
 
-
+from django.db.models import Avg
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
                                mixins.ListModelMixin,
                                mixins.CreateModelMixin,
@@ -37,7 +42,10 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     lookup_field = 'slug'
 
 
+
+
 class GenreViewSet(ListCreateDestroyViewSet):
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -48,12 +56,15 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('id')
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
+
+
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -66,7 +77,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
             Title,
-            id=self.kwargs.get('title_id',)
+            id = self.kwargs.get('title_id',)
         )
         all_reviews = title.reviews.all()
         return all_reviews
@@ -77,7 +88,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             title_id=self.kwargs.get('title_id',)
         )
 
-        
+
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
@@ -105,7 +116,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             review_id=self.kwargs.get('review_id',)
         )
 
-        
+
 class ConfirmationCodeAPIView(APIView):
     permission_classes = [
         permissions.AllowAny
@@ -190,6 +201,3 @@ class UserAPIView(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
- 
-    
-
