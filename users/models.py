@@ -13,3 +13,4 @@ class CustomUser(AbstractUser):
     bio = models.TextField(max_length=500, blank=True)
     role = models.CharField(max_length=3, choices=Role.choices,
                             default=Role.USER)
+    confirmed_code = models.CharField(max_length=24, blank=True)
