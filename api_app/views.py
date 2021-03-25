@@ -8,7 +8,7 @@ from artworks.models import Category, Title, Genre, Review
 
 from .serializers import (CategorySerializer, ReviewSerializer,
                           CommentSerializer, TitleSerializer, GenreSerializer)
-from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAuthorOrModeratorOrReadOnly, IsAdminOrReadOnly
 from .filters import TitleFilter
 
 
@@ -51,7 +51,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrModeratorOrReadOnly
+    ]
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
@@ -70,7 +73,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrModeratorOrReadOnly
+    ]
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
