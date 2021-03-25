@@ -2,15 +2,17 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+
 # from users.models import User
-
-
 User = get_user_model()
 
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
@@ -23,7 +25,7 @@ class Title(models.Model):
     year = models.IntegerField(null=True, blank=True)
     rating = models.IntegerField(blank=True, null=True)
     description = models.TextField(max_length=200)
-    genre = models.ManyToManyField(Genre)
+    genre = models.ManyToManyField(Genre, blank=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,

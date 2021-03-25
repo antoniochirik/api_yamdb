@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from rest_framework.authtoken import views
 
+
 from .views import (CommentViewSet, ReviewViewSet,
                     TitleViewSet, CategoryViewSet, GenreViewSet)
 
@@ -10,18 +11,18 @@ from .views import (CommentViewSet, ReviewViewSet,
 router = DefaultRouter()
 
 router = DefaultRouter()
+router.register('categories', CategoryViewSet)
 router.register('genres', GenreViewSet)
 router.register('titles', TitleViewSet)
-router.register('categories', CategoryViewSet)
-router.register(
-    r'^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
-    CommentViewSet,
-    basename='comment'
-)
 router.register(
     r'^titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='review'
+)
+router.register(
+    r'^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
+    CommentViewSet,
+    basename='comment'
 )
 
 urlpatterns = [

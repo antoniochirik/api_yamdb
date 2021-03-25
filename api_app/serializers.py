@@ -6,10 +6,51 @@ from artworks.models import Comment, Review, Title, Category, Genre
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
         lookup_field = 'slug'
-
+        exclude = ['id']
         model = Category
+
+
+class CategoryField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, value):
+        return CategorySerializer(value).data
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        lookup_field = 'slug'
+        exclude = ['id']
+
+        model = Genre
+
+
+class GenreField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, value):
+        return GenreSerializer(value).data
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(slug_field='slug',
+                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(slug_field='slug',
+                                            queryset=Category.objects.all())
+
+    class Meta:
+        fields = '__all__'
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -43,23 +84,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-
-
-class GenreSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        lookup_field = 'slug'
-
-        model = Genre
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(slug_field='slug',
-                                         queryset=Genre.objects.all())
-    category = serializers.SlugRelatedField(slug_field='slug',
-                                            queryset=Category.objects.all())
-
-    class Meta:
-        fields = '__all__'
-        model = Title
