@@ -1,7 +1,10 @@
 from rest_framework import serializers
+from django.db.models import Avg, F
 from django.contrib.auth import get_user_model
+
 from artworks.models import Comment,Review, Title, Category, Genre
 User = get_user_model()
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -9,8 +12,8 @@ class CategorySerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
         exclude = ['id']
         model = Category
-        
-        
+
+
 class CategoryField(serializers.SlugRelatedField):
     def to_internal_value(self, data):
         try:
@@ -19,7 +22,7 @@ class CategoryField(serializers.SlugRelatedField):
             self.fail('invalid')
     def to_representation(self, value):
         return CategorySerializer(value).data
-      
+
       
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,11 +46,12 @@ class TitleSerializer(serializers.ModelSerializer):
         many=True,
         slug_field='slug',
         queryset=Genre.objects.all()
-    )
-    category = serializers.SlugRelatedField(
+
+      
+    category = CategoryField(
         slug_field='slug',
         queryset=Category.objects.all()
-    )
+
     class Meta:
         fields = '__all__'
         model = Title
@@ -67,8 +71,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
-        
-        
+
+      
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         many=False,
