@@ -74,3 +74,4 @@ class Comment(models.Model):
         "Дата добавления",
         auto_now_add=True
     )
+
