@@ -68,6 +68,7 @@ DATABASES = {
     }
 }
 
+AUTH_PWD_MODULE = "django.contrib.auth.password_validation."
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
