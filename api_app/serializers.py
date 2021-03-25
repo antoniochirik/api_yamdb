@@ -55,14 +55,10 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    #rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
         model = Title
-
-    #def get_rating(self, obj):
-    #    return obj.reviews.aggregate(avgs=Avg(F('score'))).get('avgs', None)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
