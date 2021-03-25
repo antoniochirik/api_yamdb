@@ -1,7 +1,5 @@
 
 from django.shortcuts import get_object_or_404
-
-
 from rest_framework import viewsets, permissions, mixins, filters, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,13 +16,14 @@ from .serializers import (ReviewSerializer, CustomUserSerializer,
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from artworks.models import Category, Title, Genre, Review
+from django.db.models import Avg
 
+from artworks.models import Category, Title, Genre, Review
 
 from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
 from .filters import TitleFilter
 
-from django.db.models import Avg
+
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
                                mixins.ListModelMixin,
                                mixins.CreateModelMixin,
@@ -40,8 +39,6 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     lookup_field = 'slug'
-
-
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
@@ -65,8 +62,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
 
-
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
@@ -77,7 +72,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
             Title,
-            id = self.kwargs.get('title_id',)
+            id=self.kwargs.get('title_id',)
         )
         all_reviews = title.reviews.all()
         return all_reviews
