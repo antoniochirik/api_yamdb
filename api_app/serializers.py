@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from artworks.models import Comment, Review, Title, Category, Genre
+# from django.db.models import Avg
+
 
 User = get_user_model()
 
@@ -51,6 +53,8 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
+    # rating = Title.objects.aggregate(
+    #     Avg('reviews__score'))
 
     class Meta:
         fields = '__all__'
@@ -63,11 +67,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    # title = serializers.SlugRelatedField(
-    #     many=False,
-    #     read_only=True,
-    #     slug_field='id'
-    # )
+    title = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='id'
+    )
+
+    def validate(self, data):
+        title_id = self.context.get('view').kwargs.get('title_id')
+        author = self.context.get('request').user
+        if (self.context.get('request').method == 'POST'
+            and Review.objects.filter(title_id=title_id,
+                                      author_id=author.id).exists()):
+            raise serializers.ValidationError(
+                {'detail': 'You have already left review about this title'})
+        return data
 
     class Meta:
         model = Review
@@ -80,11 +94,11 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    # review = serializers.SlugRelatedField(
-    #     many=False,
-    #     read_only=True,
-    #     slug_field='id'
-    # )
+    review = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='id'
+    )
 
     class Meta:
         model = Comment
