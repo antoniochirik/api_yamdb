@@ -21,6 +21,7 @@ from django.db.models import Avg
 from artworks.models import Category, Title, Genre, Review
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
 from .filters import TitleFilter
 
@@ -31,6 +32,11 @@ from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
 from .filters import TitleFilter
 
 from django.db.models import Avg
+
+>>>>>>> master
+=======
+from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
+from .filters import TitleFilter
 
 >>>>>>> master
 
@@ -63,10 +69,18 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+<<<<<<< HEAD
     queryset = Title.objects.all()
     # queryset = Title.objects.annotate(
     #     rating=Avg('reviews__score')).order_by('id')
     # )
+=======
+    # queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Title.objects.aggregate(
+        Avg('reviews__score'))
+    )
+>>>>>>> master
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = PageNumberPagination
@@ -169,7 +183,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [
-        IsAdmin
+        permissions.IsAdminUser
     ]
     filter_backends = [filters.SearchFilter]
     search_fields = 'username'
@@ -178,23 +192,22 @@ class UsersViewSet(viewsets.ModelViewSet):
 class UsernameViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UsernameSerializer
-    permission_classes = [
-        IsAdmin
+    permissions_classes = [
+        permissions.IsAdminUser
     ]
-    http_method_names = ('get', 'patch', 'delete')
+    http_method_names = ('delete', 'get', 'patch')
     lookup_field = 'username'
     pagination_class = None
 
 
 class UserAPIView(APIView):
-    permission_classes = [
+    permissions_classes = [
         permissions.IsAuthenticated
     ]
 
     def get(self, request):
-        print(request.user.username)
-        user = CustomUser.objects.get(username=request.user.username)
-        print(user)
+        username = request.user.username
+        user = get_object_or_404(CustomUser, username=username)
         serializer = UserAPIViewSerializer(user)
         return Response(serializer.data)
 
