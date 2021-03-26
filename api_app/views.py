@@ -1,7 +1,5 @@
 
 from django.shortcuts import get_object_or_404
-
-
 from rest_framework import viewsets, permissions, mixins, filters, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,14 +16,12 @@ from .serializers import (ReviewSerializer, CustomUserSerializer,
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.db.models import Avg
+
 from artworks.models import Category, Title, Genre, Review
 
-from .serializers import (CategorySerializer, ReviewSerializer,
-                          CommentSerializer, TitleSerializer, GenreSerializer)
 from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
 from .filters import TitleFilter
-
-from django.db.models import Avg
 
 
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
@@ -57,8 +53,11 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    # queryset = Title.objects.all()
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')).order_by('id')
+        rating=Title.objects.aggregate(
+        Avg('reviews__score'))
+    )
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = PageNumberPagination
@@ -68,6 +67,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAuthorModeratorAdminOrReadOnly
+    ]
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
@@ -86,17 +89,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAuthorModeratorAdminOrReadOnly
+    ]
 
     def get_queryset(self, **kwargs):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id',)
-        )
+        # title = get_object_or_404(
+        #     Title,
+        #     id=self.kwargs.get('title_id',)
+        # )
         # review = title.reviews.get(review_id=self.kwargs.get('review_id',))
         review = get_object_or_404(
             Review,
-            title=title,
+            title__id=self.kwargs.get('title_id',),
             id=self.kwargs.get('review_id',)
         )
         all_comments = review.comments.all()
@@ -154,7 +160,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [
-        IsAdmin
+        permissions.IsAdminUser
     ]
     filter_backends = [filters.SearchFilter]
     search_fields = 'username'
@@ -163,23 +169,22 @@ class UsersViewSet(viewsets.ModelViewSet):
 class UsernameViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UsernameSerializer
-    permission_classes = [
-        IsAdmin
+    permissions_classes = [
+        permissions.IsAdminUser
     ]
-    http_method_names = ('get', 'patch', 'delete')
+    http_method_names = ('delete', 'get', 'patch')
     lookup_field = 'username'
     pagination_class = None
 
 
 class UserAPIView(APIView):
-    permission_classes = [
+    permissions_classes = [
         permissions.IsAuthenticated
     ]
 
     def get(self, request):
-        print(request.user.username)
-        user = CustomUser.objects.get(username=request.user.username)
-        print(user)
+        username = request.user.username
+        user = get_object_or_404(CustomUser, username=username)
         serializer = UserAPIViewSerializer(user)
         return Response(serializer.data)
 
