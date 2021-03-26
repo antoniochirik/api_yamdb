@@ -3,9 +3,13 @@ from django.contrib.auth import get_user_model
 from artworks.models import Comment, Review, Title, Category, Genre
 # from django.db.models import Avg
 
+<<<<<<< HEAD
+=======
+from artworks.models import Comment, Review, Title, Category, Genre
+User = get_user_model()
+>>>>>>> master
 
 User = get_user_model()
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,6 +59,7 @@ class TitleSerializer(serializers.ModelSerializer):
     )
     # rating = Title.objects.aggregate(
     #     Avg('reviews__score'))
+
 
     class Meta:
         fields = '__all__'
