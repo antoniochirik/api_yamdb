@@ -9,36 +9,19 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
 from django.core.mail import send_mail
 from .tokens import account_activation_token
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from artworks.models import Category, Title, Genre, Review
+
 from .serializers import (ReviewSerializer, CustomUserSerializer,
                           TitleSerializer, GenreSerializer,
                           CategorySerializer, UsernameSerializer,
                           UserAPIViewSerializer, CommentSerializer)
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.db.models import Avg
-
-from artworks.models import Category, Title, Genre, Review
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly, IsAdmin
 from .filters import TitleFilter
 
-=======
-from .serializers import (CategorySerializer, ReviewSerializer,
-                          CommentSerializer, TitleSerializer, GenreSerializer)
-from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
-from .filters import TitleFilter
-
-from django.db.models import Avg
-
->>>>>>> master
-=======
-from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
-from .filters import TitleFilter
-
->>>>>>> master
 
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
                                mixins.ListModelMixin,
@@ -50,7 +33,7 @@ class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -61,7 +44,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -69,20 +52,16 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-<<<<<<< HEAD
     queryset = Title.objects.all()
     # queryset = Title.objects.annotate(
     #     rating=Avg('reviews__score')).order_by('id')
     # )
-=======
-    # queryset = Title.objects.all()
-    queryset = Title.objects.annotate(
-        rating=Title.objects.aggregate(
-        Avg('reviews__score'))
-    )
->>>>>>> master
+    # queryset = Title.objects.annotate(
+    #     rating=Title.objects.aggregate(
+    #     Avg('reviews__score'))
+    # )
     serializer_class = TitleSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -90,10 +69,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [
+    permission_classes = (
         IsAuthenticatedOrReadOnly,
-        IsAuthorModeratorAdminOrReadOnly
-    ]
+        IsAuthorOrStaffOrReadOnly
+    )
+    pagination_class = PageNumberPagination
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
@@ -112,10 +92,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [
+    permission_classes = (
         IsAuthenticatedOrReadOnly,
-        IsAuthorModeratorAdminOrReadOnly
-    ]
+        IsAuthorOrStaffOrReadOnly
+    )
+    pagination_class = PageNumberPagination
 
     def get_queryset(self, **kwargs):
         # title = get_object_or_404(

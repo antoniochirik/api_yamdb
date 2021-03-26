@@ -1,15 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from artworks.models import Comment, Review, Title, Category, Genre
-# from django.db.models import Avg
+from artworks.models import Comment, Review, Title, Category, Genre, User
+from django.db.models import Avg
 
-<<<<<<< HEAD
-=======
-from artworks.models import Comment, Review, Title, Category, Genre
-User = get_user_model()
->>>>>>> master
-
-User = get_user_model()
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,9 +50,11 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    # rating = Title.objects.aggregate(
-    #     Avg('reviews__score'))
-
+    rating = serializers.SerializerMethodField()
+    
+    def get_rating(self, obj):
+        avg_dict = obj.reviews.aggregate(Avg('score'))
+        return avg_dict['score__avg']
 
     class Meta:
         fields = '__all__'
