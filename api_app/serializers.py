@@ -51,7 +51,7 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all()
     )
     rating = serializers.SerializerMethodField()
-    
+
     def get_rating(self, obj):
         avg_dict = obj.reviews.aggregate(Avg('score'))
         return avg_dict['score__avg']
@@ -67,11 +67,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    title = serializers.SlugRelatedField(
-        many=False,
-        read_only=True,
-        slug_field='id'
-    )
 
     def validate(self, data):
         title_id = self.context.get('view').kwargs.get('title_id')
@@ -85,7 +80,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -94,15 +89,10 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    review = serializers.SlugRelatedField(
-        many=False,
-        read_only=True,
-        slug_field='id'
-    )
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date',)
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

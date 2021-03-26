@@ -53,13 +53,6 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    # queryset = Title.objects.annotate(
-    #     rating=Avg('reviews__score')).order_by('id')
-    # )
-    # queryset = Title.objects.annotate(
-    #     rating=Title.objects.aggregate(
-    #     Avg('reviews__score'))
-    # )
     serializer_class = TitleSerializer
     permission_classes = [IsStaffOrReadOnly]
     pagination_class = PageNumberPagination
@@ -92,21 +85,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (
+    permission_classes = [
         IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
-    )
+    ]
     pagination_class = PageNumberPagination
 
     def get_queryset(self, **kwargs):
-        # title = get_object_or_404(
-        #     Title,
-        #     id=self.kwargs.get('title_id',)
-        # )
-        # review = title.reviews.get(review_id=self.kwargs.get('review_id',))
         review = get_object_or_404(
             Review,
-            title__id=self.kwargs.get('title_id',),
             id=self.kwargs.get('review_id',)
         )
         all_comments = review.comments.all()
