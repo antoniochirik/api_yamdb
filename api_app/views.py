@@ -22,10 +22,12 @@ from artworks.models import Category, Title, Genre, Review
 
 from .serializers import (CategorySerializer, ReviewSerializer,
                           CommentSerializer, TitleSerializer, GenreSerializer)
-from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
 from .filters import TitleFilter
 
 from django.db.models import Avg
+
+
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
                                mixins.ListModelMixin,
                                mixins.CreateModelMixin,
@@ -41,8 +43,6 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     lookup_field = 'slug'
-
-
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
@@ -66,15 +66,13 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
 
-
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
             Title,
-            id = self.kwargs.get('title_id',)
+            id=self.kwargs.get('title_id',)
         )
         all_reviews = title.reviews.all()
         return all_reviews
@@ -156,7 +154,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [
-        permissions.IsAdminUser
+        IsAdmin
     ]
     filter_backends = [filters.SearchFilter]
     search_fields = 'username'
@@ -165,22 +163,23 @@ class UsersViewSet(viewsets.ModelViewSet):
 class UsernameViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UsernameSerializer
-    permissions_classes = [
-        permissions.IsAdminUser
+    permission_classes = [
+        IsAdmin
     ]
-    http_method_names = ('delete', 'get', 'patch')
+    http_method_names = ('get', 'patch', 'delete')
     lookup_field = 'username'
     pagination_class = None
 
 
 class UserAPIView(APIView):
-    permissions_classes = [
+    permission_classes = [
         permissions.IsAuthenticated
     ]
 
     def get(self, request):
-        username = request.user.username
-        user = get_object_or_404(CustomUser, username=username)
+        print(request.user.username)
+        user = CustomUser.objects.get(username=request.user.username)
+        print(user)
         serializer = UserAPIViewSerializer(user)
         return Response(serializer.data)
 
@@ -195,6 +194,3 @@ class UserAPIView(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
- 
-    
-
