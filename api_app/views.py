@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -91,6 +91,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self, **kwargs):
         review = get_object_or_404(
             Review,
+            title_id=self.kwargs.get('title_id',),
             id=self.kwargs.get('review_id',)
         )
         all_comments = review.comments.all()
@@ -112,7 +113,10 @@ class ConfirmationCodeAPIView(APIView):
         email = self.request.POST.get('email')
         if email is None:
             return Response('E-mail is None')
-        user = get_object_or_404(CustomUser, email=email)
+        user = get_object_or_404(
+            CustomUser,
+            email=email
+        )
         code = account_activation_token.make_token(user)
         send_mail(
             subject='email_confirmation',
@@ -156,18 +160,19 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
 def user_api_view(request):
     if request.method == 'GET':
-        if request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         user = request.user
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'PATCH':
-        if request.user.is_anonymous:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         user = request.user
-        serializer = CustomUserSerializer(user, data=request.data, partial=True)
+        serializer = CustomUserSerializer(
+            user,
+            data=request.data,
+            partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
