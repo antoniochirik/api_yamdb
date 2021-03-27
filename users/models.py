@@ -17,3 +17,6 @@ class CustomUser(AbstractUser):
                             default=Role.USER)
 
     objects = CustomUserManager()
+
+    class Meta:
+        ordering = ['username']
