@@ -1,7 +1,9 @@
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from artworks.models import Comment, Review, Title, Category, Genre, User
 from django.db.models import Avg
+from rest_framework import serializers
+
+from artworks.models import Category, Comment, Genre, Review, Title
+from users.models import CustomUser
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -97,7 +99,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             'first_name',
             'last_name',
@@ -108,27 +110,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
         )
 
 
-class UsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-
-
-class UserAPIViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
+# class UserAPIViewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = (
+#             'first_name',
+#             'last_name',
+#             'username',
+#             'bio',
+#             'email',
+#             'role'
+#         )
