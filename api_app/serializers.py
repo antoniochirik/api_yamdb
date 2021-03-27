@@ -1,5 +1,5 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from artworks.models import Category, Comment, Genre, Review, Title
@@ -70,19 +70,22 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username'
     )
 
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
+
     def validate(self, data):
-        title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
+        title = get_object_or_404(
+            Title,
+            id=self.context.get('view').kwargs.get('title_id')
+        )
         if (self.context.get('request').method == 'POST'
-            and Review.objects.filter(title_id=title_id,
+            and Review.objects.filter(title=title,
                                       author_id=author.id).exists()):
             raise serializers.ValidationError(
                 {'detail': 'You have already left review about this title'})
         return data
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -96,6 +99,14 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date',)
 
+    def validate(self, data):
+        get_object_or_404(
+            Review,
+            title_id=self.context.get('view').kwargs.get('title_id'),
+            id=self.context.get('view').kwargs.get('review_id')
+        )
+        return data
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -108,16 +119,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
-
-
-# class UserAPIViewSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = (
-#             'first_name',
-#             'last_name',
-#             'username',
-#             'bio',
-#             'email',
-#             'role'
-#         )
