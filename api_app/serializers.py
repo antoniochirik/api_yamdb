@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -75,7 +74,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date',)
 
-    
     def validate(self, data):
         author = self.context.get('request').user
         title = get_object_or_404(
@@ -102,13 +100,9 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'pub_date',)
 
     def validate(self, data):
-        title = get_object_or_404(
-            Title,
-            id=self.context.get('view').kwargs.get('title_id')
-        )
-        review = get_object_or_404(
+        get_object_or_404(
             Review,
-            title=title,
+            title_id=self.context.get('view').kwargs.get('title_id'),
             id=self.context.get('view').kwargs.get('review_id')
         )
         return data
@@ -125,16 +119,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
-
-
-# class UserAPIViewSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = (
-#             'first_name',
-#             'last_name',
-#             'username',
-#             'bio',
-#             'email',
-#             'role'
-#         )
