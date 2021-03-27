@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -62,8 +63,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
     ]
-    pagination_class = PageNumberPagination
-    # http_method_names = ('delete', 'post', 'get', 'patch')
+    http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
@@ -86,8 +86,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
     ]
-    pagination_class = PageNumberPagination
-    # http_method_names = ('delete', 'post', 'get', 'patch')
+    http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         review = get_object_or_404(
@@ -156,25 +155,20 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
 
-class UserAPIView(APIView):
-    permissions_classes = [
-        permissions.IsAuthenticated
-    ]
-
-    def get(self, request):
-        username = request.user.username
-        user = get_object_or_404(CustomUser, username=username)
+@api_view(['GET', 'PATCH'])
+def user_api_view(request):
+    if request.method == 'GET':
+        if request.user.is_anonymous:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
         serializer = CustomUserSerializer(user)
-        return Response(serializer.data)
-
-    def patch(self, request):
-        username = request.user.username
-        user = get_object_or_404(CustomUser, username=username)
-        serializer = CustomUserSerializer(user,
-                                          data=request.data,
-                                          partial=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'PATCH':
+        if request.user.is_anonymous:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user = request.user
+        serializer = CustomUserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
