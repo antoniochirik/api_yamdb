@@ -1,26 +1,22 @@
 
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, mixins, filters, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-from rest_framework.pagination import PageNumberPagination
-from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import CustomUser
 from django.core.mail import send_mail
-from .tokens import account_activation_token
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from artworks.models import Category, Title, Genre, Review
+from artworks.models import Category, Genre, Review, Title
+from users.models import CustomUser
 
-from .serializers import (ReviewSerializer, CustomUserSerializer,
-                          TitleSerializer, GenreSerializer,
-                          CategorySerializer, UsernameSerializer,
-                          UserAPIViewSerializer, CommentSerializer)
-from .permissions import IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly, IsAdmin
 from .filters import TitleFilter
+from .permissions import IsAdmin, IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          CustomUserSerializer, GenreSerializer,
+                          ReviewSerializer, TitleSerializer)
+from .tokens import account_activation_token
 
 
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
@@ -62,11 +58,12 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly,
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
-    )
+    ]
     pagination_class = PageNumberPagination
+    # http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
@@ -86,10 +83,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        IsAuthenticatedOrReadOnly,
+        permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
     ]
     pagination_class = PageNumberPagination
+    # http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         review = get_object_or_404(
@@ -151,21 +149,11 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [
-        permissions.IsAdminUser
+        permissions.IsAuthenticated,
+        IsAdmin
     ]
     filter_backends = [filters.SearchFilter]
-    search_fields = 'username'
-
-
-class UsernameViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = UsernameSerializer
-    permissions_classes = [
-        permissions.IsAdminUser
-    ]
-    http_method_names = ('delete', 'get', 'patch')
     lookup_field = 'username'
-    pagination_class = None
 
 
 class UserAPIView(APIView):
@@ -176,15 +164,15 @@ class UserAPIView(APIView):
     def get(self, request):
         username = request.user.username
         user = get_object_or_404(CustomUser, username=username)
-        serializer = UserAPIViewSerializer(user)
+        serializer = CustomUserSerializer(user)
         return Response(serializer.data)
 
     def patch(self, request):
         username = request.user.username
         user = get_object_or_404(CustomUser, username=username)
-        serializer = UserAPIViewSerializer(user,
-                                           data=request.data,
-                                           partial=True)
+        serializer = CustomUserSerializer(user,
+                                          data=request.data,
+                                          partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,
