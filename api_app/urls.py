@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (AuthAPIView, CategoryViewSet, CommentViewSet,
                     ConfirmationCodeAPIView, GenreViewSet, ReviewViewSet,
-                    TitleViewSet, UsersViewSet, user_api_view)
+                    TitleViewSet, UsersViewSet)
 
 router = DefaultRouter()
 
@@ -23,9 +23,7 @@ router.register(
 )
 router.register(r'users', UsersViewSet, basename='users')
 
-
 urlpatterns = [
-    path('v1/users/me/', user_api_view),
     path('v1/auth/email/', ConfirmationCodeAPIView.as_view()),
     path('v1/auth/token/', AuthAPIView.as_view()),
     path('v1/', include(router.urls)),

@@ -3,7 +3,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,7 +19,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, TitleSerializer,
                           ConfirmationCodeSerializer)
 from .tokens import account_activation_token
-from django.config import settings
+from django.conf import settings
 
 
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
@@ -180,15 +180,14 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     lookup_field = 'username'
 
-
-@api_view(['GET', 'PATCH'])
-@permission_classes([permissions.IsAuthenticated])
-def user_api_view(request):
-    if request.method == 'GET':
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
         user = request.user
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == 'PATCH':
+
+    @me.mapping.patch
+    def patch_me(self, request, pk=None):
         user = request.user
         serializer = CustomUserSerializer(
             user,
@@ -198,4 +197,5 @@ def user_api_view(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
