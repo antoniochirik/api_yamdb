@@ -1,4 +1,6 @@
 from django.core.mail import send_mail
+# 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
@@ -70,11 +72,37 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
         return title.reviews.all()
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        self.get_rating()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        update_review = self.update(request, *args, **kwargs)
+        self.get_rating()
+        return update_review
+
     def perform_create(self, serializer, **kwargs):
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id',)
+        )
         serializer.save(
             author=self.request.user,
-            title_id=self.kwargs.get('title_id',)
+            title=title
         )
+        self.get_rating()
+
+    def get_rating(self):
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id',)
+        )
+        rating = self.get_queryset().aggregate(Avg('score'))
+        title.rating = round(rating['score__avg'], 2)
+        title.save(update_fields=['rating'])
 
 
 class CommentViewSet(viewsets.ModelViewSet):
