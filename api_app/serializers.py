@@ -1,10 +1,9 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from artworks.models import Comment, Review, Title, Category, Genre, User
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 
-User = get_user_model()
-
+from artworks.models import Category, Comment, Genre, Review, Title
+from users.models import CustomUser
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -54,8 +53,8 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-
     rating = serializers.SerializerMethodField()
+
 
     def get_rating(self, obj):
         avg_dict = obj.reviews.aggregate(Avg('score'))
@@ -74,19 +73,22 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username'
     )
 
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
+
     def validate(self, data):
-        title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
+        title = get_object_or_404(
+            Title,
+            id=self.context.get('view').kwargs.get('title_id')
+        )
         if (self.context.get('request').method == 'POST'
-            and Review.objects.filter(title_id=title_id,
+            and Review.objects.filter(title=title,
                                       author_id=author.id).exists()):
             raise serializers.ValidationError(
                 {'detail': 'You have already left review about this title'})
         return data
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -100,10 +102,18 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date',)
 
+    def validate(self, data):
+        get_object_or_404(
+            Review,
+            title_id=self.context.get('view').kwargs.get('title_id'),
+            id=self.context.get('view').kwargs.get('review_id')
+        )
+        return data
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             'first_name',
             'last_name',
@@ -114,9 +124,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
         )
 
 
-class UsernameSerializer(serializers.ModelSerializer):
+class ConfirmationCodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             'first_name',
             'last_name',
@@ -126,15 +136,8 @@ class UsernameSerializer(serializers.ModelSerializer):
             'role'
         )
 
-
-class UserAPIViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
+    def validate(self, data):
+        email = self.request.POST.get('email')
+        if email is None:
+            raise(serializers.ValidationError('E-mail is None'))
+        return data

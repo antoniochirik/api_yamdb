@@ -1,10 +1,10 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken import views
 
-from .views import (ReviewViewSet, UsersViewSet, ConfirmationCodeAPIView,
-                    TitleViewSet, CategoryViewSet, GenreViewSet,
-                    AuthAPIView, UserAPIView, CommentViewSet, UsernameViewSet)
+from .views import (AuthAPIView, CategoryViewSet, CommentViewSet,
+                    ConfirmationCodeAPIView, GenreViewSet, ReviewViewSet,
+                    TitleViewSet, UsersViewSet)
 
 
 
@@ -22,21 +22,10 @@ router.register(
     CommentViewSet,
     basename='comment'
 )
-
+router.register(r'users', UsersViewSet, basename='users')
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
     path('v1/auth/email/', ConfirmationCodeAPIView.as_view()),
     path('v1/auth/token/', AuthAPIView.as_view()),
-    path('v1/users/me/', UserAPIView.as_view()),
-    path('v1/users/<str:username>/', UsernameViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    })),
-    path('v1/users/', UsersViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }))
+    path('v1/', include(router.urls)),
 ]
