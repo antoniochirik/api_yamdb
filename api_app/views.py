@@ -1,4 +1,3 @@
-
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -63,15 +62,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
     ]
-    http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id',)
         )
-        all_reviews = title.reviews.all()
-        return all_reviews
+        return title.reviews.all()
 
     def perform_create(self, serializer, **kwargs):
         serializer.save(
@@ -86,7 +83,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrStaffOrReadOnly
     ]
-    http_method_names = ('delete', 'post', 'get', 'patch')
 
     def get_queryset(self, **kwargs):
         review = get_object_or_404(
@@ -94,8 +90,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             title_id=self.kwargs.get('title_id',),
             id=self.kwargs.get('review_id',)
         )
-        all_comments = review.comments.all()
-        return all_comments
+        return review.comments.all()
 
     def perform_create(self, serializer, **kwargs):
         serializer.save(

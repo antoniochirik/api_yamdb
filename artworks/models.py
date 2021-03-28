@@ -66,6 +66,7 @@ class Review(models.Model):
         ],
     )
     pub_date = models.DateTimeField(
+        'Дата добавления',
         auto_now_add=True
     )
 
@@ -77,16 +78,16 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name='comments'
     )
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name='comments'
     )
     text = models.TextField()
     pub_date = models.DateTimeField(
-        "Дата добавления",
+        'Дата добавления',
         auto_now_add=True
     )
 
