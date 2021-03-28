@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -52,11 +51,6 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    rating = serializers.SerializerMethodField()
-
-    def get_rating(self, obj):
-        avg_dict = obj.reviews.aggregate(Avg('score'))
-        return avg_dict['score__avg']
 
     class Meta:
         fields = '__all__'
@@ -119,3 +113,22 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
+
+
+class ConfirmationCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+
+    def validate(self, data):
+        email = self.request.POST.get('email')
+        if email is None:
+            raise(serializers.ValidationError('E-mail is None'))
+        return data
