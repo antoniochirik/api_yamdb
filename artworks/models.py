@@ -41,6 +41,10 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
+    rating = models.IntegerField(
+        null=True,
+        blank=True
+    )
 
     class Meta:
         ordering = ['-pk']
@@ -66,7 +70,9 @@ class Review(models.Model):
         ],
     )
     pub_date = models.DateTimeField(
-        auto_now_add=True
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
@@ -77,17 +83,18 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name='comments'
     )
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name='comments'
     )
     text = models.TextField()
     pub_date = models.DateTimeField(
-        "Дата добавления",
-        auto_now_add=True
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
