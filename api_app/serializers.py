@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -6,12 +5,12 @@ from artworks.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
 
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         lookup_field = 'slug'
         exclude = ['id']
         model = Category
-
 
 
 class CategoryField(serializers.SlugRelatedField):
@@ -43,7 +42,7 @@ class GenreField(serializers.SlugRelatedField):
         return GenreSerializer(value).data
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreField(
         many=True,
         slug_field='slug',
@@ -53,13 +52,23 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.FloatField()
+
+    class Meta:
+        fields = '__all__'
+        model = Title
 
 
-    def get_rating(self, obj):
-        avg_dict = obj.reviews.aggregate(Avg('score'))
-        return avg_dict['score__avg']
-
+class TitlePostSerializer(serializers.ModelSerializer):
+    genre = GenreField(
+        many=True,
+        slug_field='slug',
+        queryset=Genre.objects.all()
+    )
+    category = CategoryField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
 
     class Meta:
         fields = '__all__'

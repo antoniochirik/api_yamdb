@@ -13,10 +13,7 @@ class IsAuthorOrStaffOrReadOnly(permissions.BasePermission):
 class IsStaffOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        else:
-            return request.user.is_staff
+        return request.method in permissions.SAFE_METHODS or request.user.is_staff
 
 
 class IsAdmin(permissions.BasePermission):
