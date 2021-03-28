@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -114,3 +113,22 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
+
+
+class ConfirmationCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+
+    def validate(self, data):
+        email = self.request.POST.get('email')
+        if email is None:
+            raise(serializers.ValidationError('E-mail is None'))
+        return data

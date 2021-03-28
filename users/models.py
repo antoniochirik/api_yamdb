@@ -28,3 +28,11 @@ class CustomUser(AbstractUser):
 
     class Meta:
         ordering = ['username']
+
+    @property
+    def is_moderator(self):
+        return self.role == self.Role.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.Role.ADMIN
