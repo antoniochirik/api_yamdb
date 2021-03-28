@@ -19,6 +19,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, TitleSerializer,
                           ConfirmationCodeSerializer)
 from .tokens import account_activation_token
+from django.config import settings
 
 
 class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
@@ -143,7 +144,7 @@ class ConfirmationCodeAPIView(APIView):
             subject='email_confirmation',
             message='Отправьте POST с e-mail и code на '
                     f'"auth/token" {code}',
-            from_email='yamdb@ya.ru',
+            from_email=settings.EMAIL_FROM,
             recipient_list=[email]
         )
         return Response('Confirmation code was sent to your email')
