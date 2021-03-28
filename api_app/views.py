@@ -1,5 +1,4 @@
 from django.core.mail import send_mail
-# 
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,7 +16,8 @@ from .filters import TitleFilter
 from .permissions import IsAdmin, IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUserSerializer, GenreSerializer,
-                          ReviewSerializer, TitleSerializer)
+                          ReviewSerializer, TitleSerializer,
+                          ConfirmationCodeSerializer)
 from .tokens import account_activation_token
 
 
@@ -133,13 +133,11 @@ class ConfirmationCodeAPIView(APIView):
     ]
 
     def post(self, request):
-        email = self.request.POST.get('email')
-        if email is None:
-            return Response('E-mail is None')
-        user = get_object_or_404(
-            CustomUser,
-            email=email
-        )
+        serializer = ConfirmationCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        email = serializer.data['email']
+        user = get_object_or_404(CustomUser, email=email)
         code = account_activation_token.make_token(user)
         send_mail(
             subject='email_confirmation',
