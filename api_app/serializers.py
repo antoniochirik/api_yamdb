@@ -119,3 +119,23 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
+
+
+# class ConfirmationCodeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CustomUser
+#         fields = (
+#             'first_name',
+#             'last_name',
+#             'username',
+#             'bio',
+#             'email',
+#             'role'
+#         )
+
+#     def validate(self, data):
+#         get_object_or_404(
+#             CustomUser,
+#             email=self.self.context.get('request').POST.get('email')
+#         )
+#         return data
