@@ -16,8 +16,8 @@ from .filters import TitleFilter
 from .permissions import IsAdmin, IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUserSerializer, GenreSerializer,
-                          ReviewSerializer, TitleSerializer,
-                          ConfirmationCodeSerializer)
+                          ReviewSerializer, TitleGetSerializer,
+                          ConfirmationCodeSerializer, TitlePostSerializer)
 from .tokens import account_activation_token
 from django.conf import settings
 
@@ -51,12 +51,17 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')).order_by('-pk')
     permission_classes = [IsStaffOrReadOnly]
     pagination_class = PageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleGetSerializer
+        return TitlePostSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -73,18 +78,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
         return title.reviews.all()
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        self.get_rating()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        update_review = self.update(request, *args, **kwargs)
-        self.get_rating()
-        return update_review
-
     def perform_create(self, serializer, **kwargs):
         title = get_object_or_404(
             Title,
@@ -94,16 +87,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             title=title
         )
-        self.get_rating()
-
-    def get_rating(self):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id',)
-        )
-        rating = self.get_queryset().aggregate(Avg('score'))
-        title.rating = round(rating['score__avg'], 2)
-        title.save(update_fields=['rating'])
 
 
 class CommentViewSet(viewsets.ModelViewSet):
