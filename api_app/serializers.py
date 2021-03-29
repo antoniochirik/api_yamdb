@@ -4,8 +4,6 @@ from rest_framework import serializers
 from artworks.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
 
-from .fields import CategoryField, GenreField
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
