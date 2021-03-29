@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -13,14 +14,13 @@ from artworks.models import Category, Genre, Review, Title
 from users.models import CustomUser
 
 from .filters import TitleFilter
+from .mixins import ListCreateDestroyViewSet
 from .permissions import IsAdmin, IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUserSerializer, GenreSerializer,
                           ReviewSerializer, TitleGetSerializer,
                           ConfirmationCodeSerializer, TitlePostSerializer)
 from .tokens import account_activation_token
-from django.conf import settings
-from .mixins import ListCreateDestroyViewSet
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
