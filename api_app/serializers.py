@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from artworks.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
-from .fields import CategoryField, GenreField
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,15 +20,9 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
-    genre = GenreField(
-        many=True,
-        slug_field='slug',
-        queryset=Genre.objects.all()
-    )
-    category = CategoryField(
-        slug_field='slug',
-        queryset=Category.objects.all()
-    )
+    genre = GenreSerializer(many=True,
+                            read_only=True)
+    category = CategorySerializer(read_only=True)
     rating = serializers.FloatField()
 
     class Meta:
@@ -38,13 +31,15 @@ class TitleGetSerializer(serializers.ModelSerializer):
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
-    genre = GenreField(
-        many=True,
+    genre = serializers.SlugRelatedField(
         slug_field='slug',
+        many=True,
+        required=False,
         queryset=Genre.objects.all()
     )
-    category = CategoryField(
+    category = serializers.SlugRelatedField(
         slug_field='slug',
+        required=False,
         queryset=Category.objects.all()
     )
 
