@@ -2,7 +2,7 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -20,13 +20,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           ConfirmationCodeSerializer, TitlePostSerializer)
 from .tokens import account_activation_token
 from django.conf import settings
-
-
-class ListCreateDestroyViewSet(mixins.DestroyModelMixin,
-                               mixins.ListModelMixin,
-                               mixins.CreateModelMixin,
-                               viewsets.GenericViewSet):
-    pass
+from .mixins import ListCreateDestroyViewSet
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from artworks.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
+from .fields import CategoryField, GenreField
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -12,33 +13,11 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return CategorySerializer(value).data
-
-
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         lookup_field = 'slug'
         exclude = ['id']
         model = Genre
-
-
-class GenreField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return GenreSerializer(value).data
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
