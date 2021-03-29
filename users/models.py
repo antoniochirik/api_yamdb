@@ -1,15 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .managers import CustomUserManager
+from .managers import CustomUserManager, Role
 
 
 class CustomUser(AbstractUser):
-
-    class Role(models.TextChoices):
-        USER = 'user', 'User'
-        MODERATOR = 'moderator', 'Moderator'
-        ADMIN = 'admin', 'Administrator'
 
     email = models.EmailField(
         'e-mail',
@@ -31,8 +26,8 @@ class CustomUser(AbstractUser):
 
     @property
     def is_moderator(self):
-        return self.role == self.Role.MODERATOR
+        return self.role == Role.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == self.Role.ADMIN
+        return self.role == Role.ADMIN

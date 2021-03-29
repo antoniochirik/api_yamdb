@@ -41,7 +41,24 @@ class GenreField(serializers.SlugRelatedField):
         return GenreSerializer(value).data
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class TitleGetSerializer(serializers.ModelSerializer):
+    genre = GenreField(
+        many=True,
+        slug_field='slug',
+        queryset=Genre.objects.all()
+    )
+    category = CategoryField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    rating = serializers.FloatField()
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
+class TitlePostSerializer(serializers.ModelSerializer):
     genre = GenreField(
         many=True,
         slug_field='slug',

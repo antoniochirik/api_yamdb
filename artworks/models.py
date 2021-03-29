@@ -41,13 +41,6 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    rating = models.IntegerField(
-        null=True,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ['-pk']
 
 
 class Review(models.Model):
