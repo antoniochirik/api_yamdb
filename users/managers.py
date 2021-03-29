@@ -1,4 +1,11 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.db import models
+
+
+class Role(models.TextChoices):
+    USER = 'user', 'User'
+    MODERATOR = 'moderator', 'Moderator'
+    ADMIN = 'admin', 'Administrator'
 
 
 class CustomUserManager(BaseUserManager):
@@ -18,7 +25,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
-        extra_fields.setdefault('role', 'admin')
+        extra_fields.setdefault('role', Role.ADMIN)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
