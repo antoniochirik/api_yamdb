@@ -2,37 +2,45 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import CustomUser
+from .validators import my_year_validator
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name='Категория')
     slug = models.SlugField(unique=True)
 
     class Meta:
         ordering = ['-pk']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Жанр")
     slug = models.SlugField(unique=True)
 
     class Meta:
         ordering = ['-pk']
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name='Произведение')
     year = models.IntegerField(
         null=True,
-        blank=True
+        blank=True,
+        validators=[my_year_validator],
+        verbose_name='Год'
     )
     description = models.TextField(
         max_length=200,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name='Описание'
     )
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
@@ -41,6 +49,11 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
+
+    class Meta:
+        ordering = ['-pk']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
 
 class Review(models.Model):
