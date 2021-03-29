@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.exceptions import ValidationError 
+from django.core.exceptions import ValidationError
 
 
 def my_year_validator(value):

@@ -47,6 +47,7 @@ class TitlePostSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
+
     class Meta:
         fields = '__all__'
         model = Title
