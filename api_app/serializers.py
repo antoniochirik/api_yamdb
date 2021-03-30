@@ -117,9 +117,3 @@ class ConfirmationCodeSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
-
-    def validate(self, data):
-        email = self.request.POST.get('email')
-        if email is None:
-            raise(serializers.ValidationError('E-mail is None'))
-        return data
