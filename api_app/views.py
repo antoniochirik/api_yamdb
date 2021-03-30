@@ -114,7 +114,7 @@ class ConfirmationCodeAPIView(APIView):
         serializer = ConfirmationCodeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-        email = serializer.data['email']
+        email = serializer.validated_data['email']
         user = get_object_or_404(CustomUser, email=email)
         code = account_activation_token.make_token(user)
         send_mail(
