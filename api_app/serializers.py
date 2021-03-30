@@ -104,16 +104,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'email',
             'role'
         )
-
-
-class ConfirmationCodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
