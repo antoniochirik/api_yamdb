@@ -19,7 +19,7 @@ from .permissions import IsAdmin, IsAuthorOrStaffOrReadOnly, IsStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUserSerializer, GenreSerializer,
                           ReviewSerializer, TitleGetSerializer,
-                          ConfirmationCodeSerializer, TitlePostSerializer)
+                          TitlePostSerializer)
 from .tokens import account_activation_token
 
 
@@ -111,7 +111,7 @@ class ConfirmationCodeAPIView(APIView):
     ]
 
     def post(self, request):
-        serializer = ConfirmationCodeSerializer(data=request.data)
+        serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
         email = serializer.validated_data['email']
